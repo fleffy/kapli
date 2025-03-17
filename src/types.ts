@@ -7,6 +7,7 @@ export interface EyeDrop {
 	totalDropsToday: number
 	usageTimesToday: Date[]
 	priority: number
+	schedule: { [key: string]: number }
 }
 
 export interface HistoryEntry {
@@ -30,6 +31,7 @@ export interface Settings {
 	sleepTime: string
 	wakeTime: string
 	showSideEffects: boolean
+	language: 'ru' | 'en' | 'uk'
 }
 
 export interface SideEffect {

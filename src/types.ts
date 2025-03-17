@@ -31,7 +31,6 @@ export interface Settings {
 	sleepTime: string
 	wakeTime: string
 	showSideEffects: boolean
-	language: 'ru' | 'en' | 'uk'
 }
 
 export interface SideEffect {

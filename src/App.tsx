@@ -98,7 +98,6 @@ function App() {
 				sleepTime: '23:00',
 				wakeTime: '07:00',
 				showSideEffects: true,
-				language: 'ru',
 			}) as Settings
 	)
 

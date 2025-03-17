@@ -20,7 +20,6 @@ const defaultSettings: Settings = {
 	sleepTime: '23:00',
 	wakeTime: '07:00',
 	showSideEffects: true,
-	language: 'ru',
 }
 
 interface SettingsProviderProps {

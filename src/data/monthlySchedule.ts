@@ -3,33 +3,41 @@ import { format, addDays } from 'date-fns'
 
 const startDate = new Date()
 
-// Generate schedule with varying drops per day
+// Функция для генерации расписания с учетом разных периодов и снижения дозы
 const generateComplexSchedule = (config: {
+	name: string
 	surgeryDayDrops?: number
-	firstFiveDaysDrops?: number
-	remainingDaysDrops?: number
+	firstPeriodDays?: number
+	firstPeriodDrops?: number
+	decreasingSchedule?: Array<{ days: number; drops: number }>
 	totalDays: number
 }) => {
 	const schedule: { [key: string]: number } = {}
 
-	// Surgery day
+	// День операции
 	if (config.surgeryDayDrops) {
 		schedule[format(startDate, 'yyyy-MM-dd')] = config.surgeryDayDrops
 	}
 
-	// First 5 days after surgery
-	for (let i = 1; i <= 5; i++) {
-		if (config.firstFiveDaysDrops) {
+	let currentDay = 1
+
+	// Первый период (обычно 5 дней)
+	if (config.firstPeriodDays && config.firstPeriodDrops) {
+		for (let i = currentDay; i <= config.firstPeriodDays; i++) {
 			const date = format(addDays(startDate, i), 'yyyy-MM-dd')
-			schedule[date] = config.firstFiveDaysDrops
+			schedule[date] = config.firstPeriodDrops
 		}
+		currentDay += config.firstPeriodDays
 	}
 
-	// Remaining days
-	for (let i = 6; i < config.totalDays; i++) {
-		if (config.remainingDaysDrops) {
-			const date = format(addDays(startDate, i), 'yyyy-MM-dd')
-			schedule[date] = config.remainingDaysDrops
+	// Период снижения дозы (если есть)
+	if (config.decreasingSchedule) {
+		for (const period of config.decreasingSchedule) {
+			for (let i = 0; i < period.days; i++) {
+				const date = format(addDays(startDate, currentDay + i), 'yyyy-MM-dd')
+				schedule[date] = period.drops
+			}
+			currentDay += period.days
 		}
 	}
 
@@ -41,14 +49,16 @@ export const defaultDrops: EyeDrop[] = [
 		id: 1,
 		name: 'Цитомоксан',
 		timesPerDay: 5,
-		daysLeft: 6, // 1 день операции + 5 дней после
+		daysLeft: 6,
 		lastUsed: null,
 		totalDropsToday: 0,
 		usageTimesToday: [],
 		priority: 1,
 		schedule: generateComplexSchedule({
-			surgeryDayDrops: 5, // каждые 2 часа до сна (макс 5 раз)
-			firstFiveDaysDrops: 3, // 3 раза в день
+			name: 'Цитомоксан',
+			surgeryDayDrops: 5, // 1 капля каждые 2 часа (не более 5 раз)
+			firstPeriodDays: 5,
+			firstPeriodDrops: 3, // 3 раза в день
 			totalDays: 6,
 		}),
 	},
@@ -56,15 +66,21 @@ export const defaultDrops: EyeDrop[] = [
 		id: 2,
 		name: 'Дексапос',
 		timesPerDay: 4,
-		daysLeft: 20, // общая длительность курса
+		daysLeft: 20,
 		lastUsed: null,
 		totalDropsToday: 0,
 		usageTimesToday: [],
 		priority: 2,
 		schedule: generateComplexSchedule({
+			name: 'Дексапос',
 			surgeryDayDrops: 6, // каждые 2 часа до сна
-			firstFiveDaysDrops: 4,
-			remainingDaysDrops: 1, // постепенное снижение
+			firstPeriodDays: 5,
+			firstPeriodDrops: 4,
+			decreasingSchedule: [
+				{ days: 5, drops: 3 }, // 3 раза в день 5 дней
+				{ days: 5, drops: 2 }, // 2 раза в день 5 дней
+				{ days: 5, drops: 1 }, // 1 раз в день 5 дней
+			],
 			totalDays: 20,
 		}),
 	},
@@ -78,8 +94,9 @@ export const defaultDrops: EyeDrop[] = [
 		usageTimesToday: [],
 		priority: 3,
 		schedule: generateComplexSchedule({
-			firstFiveDaysDrops: 4,
-			remainingDaysDrops: 4,
+			name: 'Супероптик аква',
+			firstPeriodDays: 30,
+			firstPeriodDrops: 4, // 4 раза в день месяц
 			totalDays: 30,
 		}),
 	},

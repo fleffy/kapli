@@ -169,7 +169,6 @@ function App() {
 		}
 	}, [firebaseData, user?.uid])
 
-	// Обновляем Firebase при изменении локального состояния
 	useEffect(() => {
 		if (user?.uid && !isSyncing) {
 			console.log('Updating Firebase with local data')
